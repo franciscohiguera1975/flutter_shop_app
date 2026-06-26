@@ -24,7 +24,7 @@ class HomeScreen extends ConsumerWidget {
             child: Container(
               width:  double.infinity,
               padding: const EdgeInsets.fromLTRB(24, 72, 24, 48),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end:   Alignment.bottomCenter,
@@ -183,7 +183,7 @@ class HomeScreen extends ConsumerWidget {
                     final product = catalogState.products.take(4).toList()[i];
                     return ProductCard(
                       product: product,
-                      onTap:   () => context.push('/product/${product.id}'),
+                      onTap:   () => context.push('/catalog/${product.id}'),
                     );
                   },
                   childCount: catalogState.products.take(4).length,

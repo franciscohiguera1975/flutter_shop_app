@@ -55,6 +55,22 @@ class Product {
     updatedAt:    j['updated_at']                          as String,
   );
 
+  /// Empty product used as placeholder when no product is found.
+  static Product empty() => const Product(
+    id: 0,
+    name: '',
+    description: '',
+    price: 0.0,
+    priceWithTax: 0.0,
+    stock: 0,
+    inStock: false,
+    isActive: false,
+    imageUrl: null,
+    category: null,
+    createdAt: '',
+    updatedAt: '',
+  );
+
   Product copyWith({bool? isActive, int? stock}) => Product(
     id:           id,
     name:         name,
