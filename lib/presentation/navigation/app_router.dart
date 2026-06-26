@@ -84,11 +84,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
           GoRoute(path: '/catalog', builder: (_, __) => const CatalogScreen()),
           GoRoute(
-            path: '/product/:id',
-            builder: (_, s) =>
-                _PlaceholderScreen('Detalle #${s.pathParameters['id']} — M5'),
-          ),
-          GoRoute(
             path: '/cart',
             builder: (_, __) => const CartScreen(),
           ),

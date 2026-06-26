@@ -6,7 +6,6 @@ import '../../../theme/app_colors.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../../data/remote/api/order_remote_datasource.dart';
-import '../../../data/local/secure_storage.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
@@ -187,13 +186,8 @@ class CartScreen extends ConsumerWidget {
 }
 
 Future<void> _confirmOrder(BuildContext context, WidgetRef ref, CartState state) async {
-  print('DEBUG: Iniciando _confirmOrder con ${state.items.length} items');
-  
-  // Verificar autenticación
   final authState = ref.read(authProvider);
-  print('DEBUG: Estado de autenticación: ${authState.isAuthenticated}');
   if (!authState.isAuthenticated) {
-    print('DEBUG: Usuario no autenticado, redirigiendo a login');
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Debes iniciar sesión para confirmar una orden')),
@@ -201,13 +195,9 @@ Future<void> _confirmOrder(BuildContext context, WidgetRef ref, CartState state)
     context.go('/login');
     return;
   }
-  
-  final storage = ref.read(secureStorageProvider);
-  final token = await storage.getAccess();
-  print('DEBUG:.Token de acceso: ${token != null ? "Presente" : "Ausente"}');
-  
+
   final datasource = ref.read(orderDatasourceProvider);
-  
+
   final shouldConfirm = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
@@ -219,11 +209,9 @@ Future<void> _confirmOrder(BuildContext context, WidgetRef ref, CartState state)
           child: const Text('Cancelar'),
         ),
         ElevatedButton(
-          onPressed: () {
-            Navigator.of(dialogContext).pop(true);
-          },
+          onPressed: () => Navigator.of(dialogContext).pop(true),
           style: ElevatedButton.styleFrom(
-            minimumSize: const Size(120, 48), // Restrict width to avoid layout exception in Dialog actions
+            minimumSize: const Size(120, 48),
           ),
           child: const Text('Confirmar'),
         ),
@@ -231,41 +219,24 @@ Future<void> _confirmOrder(BuildContext context, WidgetRef ref, CartState state)
     ),
   );
 
-  if (shouldConfirm != true) {
-    print('DEBUG: Usuario canceló la confirmación');
-    return;
-  }
+  if (shouldConfirm != true) return;
 
-  print('DEBUG: Usuario confirmó, iniciando proceso de orden');
-  
   try {
-    print('DEBUG: Creando orden...');
     final order = await datasource.createOrder();
-    print('DEBUG: Orden creada con ID: ${order.id}');
-    
     for (final item in state.items) {
-      print('DEBUG: Agregando item - product_id: ${item.product.id}, quantity: ${item.quantity}');
       await datasource.addItem(order.id, item.product.id, item.quantity);
     }
-    print('DEBUG: Todos los items agregados');
-    
-    print('DEBUG: Confirmando orden ${order.id}...');
     final confirmedOrder = await datasource.confirmOrder(order.id);
-    print('DEBUG: Orden confirmada: ${confirmedOrder.id}, status: ${confirmedOrder.status}');
 
     ref.read(cartProvider.notifier).clearCart();
     if (!context.mounted) return;
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Orden #${confirmedOrder.id} confirmada')),
     );
     context.go('/orders');
   } catch (e) {
-    print('DEBUG: Error confirmando orden: $e');
-    print('DEBUG: Stack trace: ${StackTrace.current}');
     if (!context.mounted) return;
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Error confirmando orden: $e')),
     );
   }
