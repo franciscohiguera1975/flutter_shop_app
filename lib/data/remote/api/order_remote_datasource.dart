@@ -47,9 +47,15 @@ class OrderRemoteDatasourceImpl implements OrderRemoteDatasource {
   @override
   Future<Order> createOrder() async {
     try {
+      print('DEBUG: POST /orders/ - Creando orden');
       final res = await _dio.post('/orders/', data: {});
+      print('DEBUG: POST /orders/ - Respuesta: ${res.statusCode}');
+      print('DEBUG: POST /orders/ - Data: ${res.data}');
       return Order.fromJson(res.data as Map<String, dynamic>);
     } on DioException catch (e) {
+      print('DEBUG: POST /orders/ - Error: ${e.message}');
+      print('DEBUG: POST /orders/ - Response: ${e.response?.data}');
+      print('DEBUG: POST /orders/ - Type: ${e.type}');
       throw ApiException.fromDioError(e);
     }
   }
@@ -57,12 +63,16 @@ class OrderRemoteDatasourceImpl implements OrderRemoteDatasource {
   @override
   Future<Order> addItem(int orderId, int productId, int quantity) async {
     try {
+      print('DEBUG: POST /orders/$orderId/add-item/ - product_id: $productId, quantity: $quantity');
       final res = await _dio.post(
         '/orders/$orderId/add-item/',
         data: {'product_id': productId, 'quantity': quantity},
       );
+      print('DEBUG: POST /orders/$orderId/add-item/ - Respuesta: ${res.statusCode}');
       return Order.fromJson(res.data as Map<String, dynamic>);
     } on DioException catch (e) {
+      print('DEBUG: POST /orders/$orderId/add-item/ - Error: ${e.message}');
+      print('DEBUG: POST /orders/$orderId/add-item/ - Response: ${e.response?.data}');
       throw ApiException.fromDioError(e);
     }
   }
@@ -70,9 +80,15 @@ class OrderRemoteDatasourceImpl implements OrderRemoteDatasource {
   @override
   Future<Order> confirmOrder(int orderId) async {
     try {
+      print('DEBUG: POST /orders/$orderId/confirm/ - Confirmando orden');
       final res = await _dio.post('/orders/$orderId/confirm/');
+      print('DEBUG: POST /orders/$orderId/confirm/ - Respuesta: ${res.statusCode}');
+      print('DEBUG: POST /orders/$orderId/confirm/ - Data: ${res.data}');
       return Order.fromJson(res.data as Map<String, dynamic>);
     } on DioException catch (e) {
+      print('DEBUG: POST /orders/$orderId/confirm/ - Error: ${e.message}');
+      print('DEBUG: POST /orders/$orderId/confirm/ - Response: ${e.response?.data}');
+      print('DEBUG: POST /orders/$orderId/confirm/ - Type: ${e.type}');
       throw ApiException.fromDioError(e);
     }
   }

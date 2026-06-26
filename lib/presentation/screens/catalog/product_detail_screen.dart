@@ -1,12 +1,13 @@
 // lib/presentation/screens/catalog/product_detail_screen.dart
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/config/app_config.dart';
 import '../../providers/catalog_provider.dart';
+import '../../providers/cart_provider.dart';
 import '../../../domain/model/product.dart';
 
 class ProductDetailScreen extends ConsumerWidget {
@@ -42,15 +43,15 @@ class ProductDetailScreen extends ConsumerWidget {
   }
 }
 
-class _ProductDetailContent extends StatefulWidget {
+class _ProductDetailContent extends ConsumerStatefulWidget {
   final Product product;
   const _ProductDetailContent({required this.product});
 
   @override
-  State<_ProductDetailContent> createState() => _ProductDetailContentState();
+  ConsumerState<_ProductDetailContent> createState() => _ProductDetailContentState();
 }
 
-class _ProductDetailContentState extends State<_ProductDetailContent> {
+class _ProductDetailContentState extends ConsumerState<_ProductDetailContent> {
   int _quantity = 1;
 
   @override
@@ -74,9 +75,29 @@ class _ProductDetailContentState extends State<_ProductDetailContent> {
                   height: 240,
                   width: double.infinity,
                   color: AppColors.borderLight,
-                  child: const Center(
-                    child: Text('📦', style: TextStyle(fontSize: 72)),
-                  ),
+                  child: p.imageUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: p.imageUrl!,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Container(
+                            color: AppColors.surface2,
+                            child: const Center(
+                              child: CircularProgressIndicator(color: AppColors.accent),
+                            ),
+                          ),
+                          errorWidget: (_, __, ___) => Container(
+                            color: AppColors.surface2,
+                            child: const Center(
+                              child: Text('📦', style: TextStyle(fontSize: 72)),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          color: AppColors.surface2,
+                          child: const Center(
+                            child: Text('📦', style: TextStyle(fontSize: 72)),
+                          ),
+                        ),
                 ),
                 if (outOfStock)
                   Positioned(
@@ -267,11 +288,15 @@ class _ProductDetailContentState extends State<_ProductDetailContent> {
                     onPressed: outOfStock
                         ? null
                         : () {
-                            // In M6 we'll connect to CartNotifier
+                            ref.read(cartProvider.notifier).addItem(
+                                  p,
+                                  quantity: _quantity,
+                                );
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                    '✅ $_quantity× ${p.name} — In M6 we add to real cart'),
+                                  '✅ $_quantity× ${p.name} agregado al carrito',
+                                ),
                                 backgroundColor: AppColors.success,
                               ),
                             );

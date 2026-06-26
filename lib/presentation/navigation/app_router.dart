@@ -6,10 +6,14 @@ import 'package:go_router/go_router.dart';
 import '../../domain/model/auth_state.dart';
 import '../providers/auth_provider.dart';
 import '../screens/auth/login_screen.dart';
+import '../screens/auth/profile_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/catalog/catalog_screen.dart';
 import '../screens/catalog/home_screen.dart';
 import '../screens/catalog/product_detail_screen.dart';
+import '../screens/cart/cart_screen.dart';
+import '../screens/orders/order_detail_screen.dart';
+import '../screens/orders/orders_screen.dart';
 import 'public_shell.dart';
 
 class _PlaceholderScreen extends ConsumerWidget {
@@ -28,6 +32,7 @@ class _PlaceholderScreen extends ConsumerWidget {
             onPressed: () async {
               // Cerrar sesión y volver al login
               await ref.read(authProvider.notifier).logout();
+              if (!context.mounted) return;
               context.go('/login');
             },
           ),
@@ -53,12 +58,17 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       final isAuthRoute = location == '/login' || location == '/register';
 
-      if (!auth.isAuthenticated && !isAuthRoute) return '/login';
-      if (auth.isAuthenticated && isAuthRoute)
+      if (!auth.isAuthenticated && !isAuthRoute) {
+        return '/login';
+      }
+      if (auth.isAuthenticated && isAuthRoute) {
         return auth.isStaff ? '/admin' : '/';
+      }
       if (auth.isAuthenticated &&
           !auth.isStaff &&
-          location.startsWith('/admin')) return '/';
+          location.startsWith('/admin')) {
+        return '/';
+      }
 
       return null;
     },
@@ -79,18 +89,23 @@ final routerProvider = Provider<GoRouter>((ref) {
                 _PlaceholderScreen('Detalle #${s.pathParameters['id']} — M5'),
           ),
           GoRoute(
-              path: '/cart',
-              builder: (_, __) => const _PlaceholderScreen('Carrito — M6')),
+            path: '/cart',
+            builder: (_, __) => const CartScreen(),
+          ),
           GoRoute(
-              path: '/orders',
-              builder: (_, __) => const _PlaceholderScreen('Mis pedidos — M7')),
+            path: '/orders',
+            builder: (_, __) => const OrdersScreen(),
+          ),
           GoRoute(
-              path: '/orders/:id',
-              builder: (_, s) =>
-                  _PlaceholderScreen('Pedido #${s.pathParameters['id']} — M7')),
+            path: '/orders/:id',
+            builder: (_, s) => OrderDetailScreen(
+              orderId: int.parse(s.pathParameters['id']!),
+            ),
+          ),
           GoRoute(
-              path: '/profile',
-              builder: (_, __) => const _PlaceholderScreen('Perfil — M7')),
+            path: '/profile',
+            builder: (_, __) => const ProfileScreen(),
+          ),
         ],
       ),
 

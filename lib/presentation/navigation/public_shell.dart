@@ -16,17 +16,18 @@ class PublicShell extends ConsumerWidget {
     final cartCount   = ref.watch(cartProvider).totalItems;
     final location    = GoRouterState.of(context).matchedLocation;
 
-    int _selectedIndex() {
+    int selectedIndex() {
       if (location.startsWith('/catalog')) return 1;
       if (location.startsWith('/orders'))  return 2;
-      if (location.startsWith('/profile')) return 3;
+      if (location.startsWith('/cart'))    return 3;
+      if (location.startsWith('/profile')) return 4;
       return 0;
     }
 
     return Scaffold(
       body: child,
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex(),
+        currentIndex: selectedIndex(),
         type:         BottomNavigationBarType.fixed,
         items: [
           const BottomNavigationBarItem(
@@ -38,6 +39,11 @@ class PublicShell extends ConsumerWidget {
             icon:  Icon(Icons.grid_view_outlined),
             activeIcon: Icon(Icons.grid_view),
             label: 'Catálogo',
+          ),
+          const BottomNavigationBarItem(
+            icon:  Icon(Icons.receipt_long_outlined),
+            activeIcon: Icon(Icons.receipt_long),
+            label: 'Pedidos',
           ),
           BottomNavigationBarItem(
             icon: Stack(
@@ -79,8 +85,9 @@ class PublicShell extends ConsumerWidget {
           switch (index) {
             case 0: context.go('/');        break;
             case 1: context.go('/catalog'); break;
-            case 2: context.go('/cart');    break;
-            case 3: context.go('/profile'); break;
+            case 2: context.go('/orders');   break;
+            case 3: context.go('/cart');    break;
+            case 4: context.go('/profile'); break;
           }
         },
       ),

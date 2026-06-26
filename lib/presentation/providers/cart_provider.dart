@@ -19,8 +19,8 @@ class CartState {
   const CartState({this.items = const []});
 
   int    get totalItems   => items.fold(0, (s, i) => s + i.quantity);
-  double get subtotal     => items.fold(0, (s, i) => s + i.subtotal);
-  double get totalWithTax => items.fold(0, (s, i) => s + i.product.priceWithTax * i.quantity);
+  double get subtotal     => items.fold(0.0, (s, i) => s + i.subtotal);
+  double get totalWithTax => items.fold(0.0, (s, i) => s + i.product.priceWithTax * i.quantity);
 
   CartState copyWith({List<CartItem>? items}) => CartState(items: items ?? this.items);
 }
