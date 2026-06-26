@@ -16,6 +16,8 @@ import '../screens/orders/order_detail_screen.dart';
 import '../screens/orders/orders_screen.dart';
 import '../screens/admin/dashboard_screen.dart';
 import '../screens/admin/categories_admin_screen.dart';
+import '../screens/admin/order_admin_detail_screen.dart';
+import '../screens/admin/orders_admin_screen.dart';
 import '../screens/admin/products_admin_screen.dart';
 import '../widgets/admin_shell.dart';
 import 'public_shell.dart';
@@ -29,36 +31,6 @@ class _AdminPlaceholder extends StatelessWidget {
         child: Text(title,
             style: const TextStyle(color: Color(0xFF8888AA), fontSize: 16)),
       );
-}
-
-class _PlaceholderScreen extends ConsumerWidget {
-  final String title;
-  const _PlaceholderScreen(this.title);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: [
-          IconButton(
-            tooltip: 'Cerrar sesión',
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              // Cerrar sesión y volver al login
-              await ref.read(authProvider.notifier).logout();
-              if (!context.mounted) return;
-              context.go('/login');
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Text(title,
-            style: const TextStyle(color: Color(0xFF8888AA), fontSize: 16)),
-      ),
-    );
-  }
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -149,16 +121,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => AdminShell(
           title:        'Pedidos',
           currentRoute: state.matchedLocation,
-          child:        const _AdminPlaceholder('Pedidos admin — M10'),
+          child:        const OrdersAdminScreen(),
         ),
       ),
       GoRoute(
         path: '/admin/orders/:id',
         builder: (_, state) => AdminShell(
-          title:        'Detalle pedido',
+          title:        'Detalle pedido #${state.pathParameters['id']}',
           currentRoute: '/admin/orders',
-          child:        _AdminPlaceholder(
-              'Pedido #${state.pathParameters['id']} — M10'),
+          child:        OrderAdminDetailScreen(
+            orderId: int.parse(state.pathParameters['id']!),
+          ),
         ),
       ),
       GoRoute(
